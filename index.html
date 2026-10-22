@@ -73,7 +73,13 @@ body.done #bandLabel{display:none}
 
 #below{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:13px}
 #below button{padding:10px 2px;color:var(--white)}
-#summary{flex:1;text-align:center;font-size:11px;line-height:1.5;color:var(--ash);padding:0 10px}
+#dirpick{flex:1;justify-content:center;gap:0 4px}
+#dirpick button{width:40px;height:40px;padding:0;font-size:18px;display:grid;place-items:center;border-bottom:1px solid transparent}
+#dirpick.off{visibility:hidden}
+#below #dirpick button{color:var(--ash)}
+#below #dirpick button.on{color:var(--white);border-bottom-color:var(--white)}
+#summary{text-align:center;font-size:11px;line-height:1.5;color:var(--ash);margin-top:4px}
+body.done #summary,body.capturing #summary{visibility:hidden}
 body.capturing #below button{visibility:hidden}
 body.done #below{display:none}
 
@@ -151,9 +157,10 @@ select{width:100%;background:var(--black);color:var(--white);border:1px solid va
 
   <div id="below">
     <button id="bSettings">Réglages</button>
-    <div id="summary"></div>
+    <div id="dirpick" class="opts" role="group" aria-label="Sens du balayage"></div>
     <button id="bSource">Importer</button>
   </div>
+  <div id="summary"></div>
 
   <div id="result">
     <button id="bSave">Enregistrer la photo</button>
@@ -172,13 +179,17 @@ select{width:100%;background:var(--black);color:var(--white);border:1px solid va
   <div class="scrim"></div>
   <div class="panel">
     <div class="sheethead"><h2>Réglages</h2><button id="bClose">Fermer</button></div>
-    <div class="row"><div class="lab"><span class="k">Durée<span lang="ja">時間</span></span><span class="v" id="vDur"></span></div><input type="range" id="dur" min="0" max="15" step="1" aria-label="Durée"><div class="hint" id="hDur"></div></div>
+    <div class="row"><div class="lab"><span class="k" id="kDur">Vitesse<span lang="ja">速度</span></span><span class="v" id="vDur"></span></div><input type="range" id="dur" min="0" max="1000" step="1" aria-label="Vitesse de défilement"><div class="hint" id="hDur"></div></div>
+    <div class="row" id="rCurve"><div class="lab"><span class="k">Rythme<span lang="ja">律動</span></span><span class="v"></span></div><div class="opts" id="curve"></div><div class="hint" id="hCurve"></div></div>
+    <div class="row" id="rSoft"><div class="lab"><span class="k">Douceur<span lang="ja">柔らかさ</span></span><span class="v" id="vSoft"></span></div><input type="range" id="soft" min="0" max="100" step="1" aria-label="Douceur"><div class="hint">Chaque ligne mélange plusieurs images voisines dans le temps. À gauche, des transitions nettes mais sans marches. À droite, les mouvements se fondent en traînées.</div></div>
+    <div class="row" id="rOrg"><label class="toggle"><span>Organique<span lang="ja">有機</span></span><input type="checkbox" id="org"></label><div class="hint">Chaque nouvelle ligne regarde sa voisine déjà construite et garde surtout les images dont les pixels la prolongent, en donnant plus de poids aux contours forts. Les formes se continuent au lieu de se couper. Plus parlant avec une douceur au-dessus de 20 %.</div></div>
+    <div class="row"><div class="lab"><span class="k">Contraste<span lang="ja">コントラスト</span></span><span class="v" id="vCon"></span></div><input type="range" id="con" min="-50" max="50" step="1" aria-label="Contraste"></div>
     <div class="row"><div class="lab"><span class="k">Format<span lang="ja">比率</span></span><span class="v" id="vRatio"></span></div><div class="opts" id="ratio"></div></div>
     <div class="row" id="rDir"><div class="lab"><span class="k">Sens<span lang="ja">方向</span></span><span class="v" id="vDir"></span></div><div class="opts" id="dir"></div></div>
     <div class="row hidden" id="rBlend"><div class="lab"><span class="k">Mélange<span lang="ja">合成</span></span><span class="v"></span></div><div class="opts" id="blend"></div><div class="hint">Moyenne lisse l’eau et efface les passants. Éclaircir garde les traînées de lumière, phares et néons. Assombrir fait l’inverse.</div></div>
     <div class="row"><div class="lab"><span class="k">Teinte<span lang="ja">色調</span></span><span class="v"></span></div><div class="opts" id="tint"></div><div class="hint">async reprend le gris lavande des images de l’installation.</div></div>
     <div class="row"><div class="lab"><span class="k">Définition<span lang="ja">解像度</span></span><span class="v" id="vRes"></span></div><div class="opts" id="res"></div></div>
-    <div class="row" id="rLens"><div class="lab"><span class="k">Objectif<span lang="ja">レンズ</span></span><span class="v"></span></div><select id="lens" aria-label="Objectif"></select></div>
+    <div class="row" id="rLens"><div class="lab"><span class="k">Objectif<span lang="ja">レンズ</span></span><span class="v"></span></div><select id="lens" aria-label="Objectif"></select><div class="hint" id="hLens"></div></div>
     <div class="row hidden" id="rZoom"><div class="lab"><span class="k">Zoom<span lang="ja">ズーム</span></span><span class="v" id="vZoom"></span></div><input type="range" id="zoom" aria-label="Zoom"></div>
     <div class="row"><div class="lab"><span class="k">Exposition<span lang="ja">露出</span></span><span class="v" id="vEv"></span></div><input type="range" id="ev" min="-3" max="3" step="0.1" aria-label="Exposition"><div class="hint" id="hEv"></div></div>
     <div class="row hidden" id="rShut"><div class="lab"><span class="k">Vitesse capteur<span lang="ja">速度</span></span><span class="v" id="vShut"></span></div><input type="range" id="shut" min="0" max="100" step="1" aria-label="Vitesse capteur"><div class="hint">Tout à gauche : automatique.</div></div>
@@ -192,7 +203,19 @@ select{width:100%;background:var(--black);color:var(--white);border:1px solid va
 (() => {
 'use strict';
 const $ = s => document.querySelector(s);
-const DUR = [1,2,3,5,8,10,15,20,30,45,60,90,120,180,300,600];
+const DMIN = 1, DMAX = 600;
+const CURVES = [['lin','Constant'],['ease','Doux'],['breath','Respiration']];
+const CURVE_HINT = {
+  lin:'La ligne avance à vitesse égale.',
+  ease:'Départ lent, accélération au milieu, arrivée lente.',
+  breath:'La vitesse ondule trois fois pendant la pose, comme une respiration.'
+};
+const TAU = Math.PI*2;
+const CURVEF = {
+  lin: f => [f, 1],
+  ease: f => [f - Math.sin(TAU*f)/TAU, 1 - Math.cos(TAU*f)],
+  breath: f => { const a=.6, w=TAU*3; return [f - a*Math.sin(w*f)/w, 1 - a*Math.cos(w*f)]; }
+};
 const RATIOS = ['3:4','4:3','1:1','2:3','3:2','9:16','16:9','3:1'];
 const DIRS = [['lr','→'],['rl','←'],['tb','↓'],['bt','↑']];
 const DIRTXT = {lr:'de gauche à droite',rl:'de droite à gauche',tb:'de haut en bas',bt:'de bas en haut'};
@@ -202,11 +225,17 @@ const TINTS = [['color','Couleur'],['mono','Noir et blanc'],['async','async']];
 const TIMERS = [[0,'Aucun'],[3,'3 s'],[10,'10 s']];
 const ACCUM_MAX = 1440;
 
-const S = Object.assign({mode:'scan',dur:10,ratio:'3:4',dir:'lr',res:1600,blend:'mean',tint:'color',ev:0,timer:3,recv:false,deviceId:'',zoom:null,shut:0}, load());
+const S = Object.assign({mode:'scan',dur:10,ratio:'3:4',dir:'lr',res:1600,blend:'mean',tint:'color',ev:0,timer:3,recv:false,deviceId:'',zoom:null,shut:0,curve:'lin',soft:35,con:8,org:true}, load());
+if(typeof S.dur!=='number' || !(S.dur>=DMIN)) S.dur=10;
 function load(){ try{ return JSON.parse(localStorage.getItem('between')||'{}'); }catch(e){ return {}; } }
 function save(){ try{ localStorage.setItem('between', JSON.stringify(S)); }catch(e){} }
 
-const video=$('#cam'), out=$('#out'), octx=out.getContext('2d');
+/* Wide-gamut canvases where the browser supports it: the iPhone camera delivers Display P3,
+   and squeezing it into sRGB is part of what flattened the images. */
+const P3 = (() => { try{ const c=document.createElement('canvas').getContext('2d',{colorSpace:'display-p3'}); return !!c && c.getContextAttributes && c.getContextAttributes().colorSpace==='display-p3'; }catch(e){ return false; } })();
+function ctx2d(c, extra){ return c.getContext('2d', Object.assign(P3?{colorSpace:'display-p3'}:{}, extra||{})); }
+
+const video=$('#cam'), out=$('#out'), octx=ctx2d(out);
 const frame=$('#frame'), scan=$('#scan'), slitmark=$('#slitmark');
 const band=$('#band'), bandc=$('#bandc'), bctx=bandc.getContext('2d'), bandLabel=$('#bandLabel'), bandCursor=$('#bandCursor');
 video.setAttribute('playsinline',''); video.muted=true;
@@ -231,13 +260,15 @@ function captureLength(){ return (source==='file' && isFinite(video.duration)) ?
 
 /* ---------- tint & gain ---------- */
 function gain(){ return hwEv ? 1 : Math.pow(2,S.ev); }
-function gainCSS(){ const g=gain(); return Math.abs(g-1)<1e-3 ? '' : `brightness(${g.toFixed(3)})`; }
+function contrastK(){ return 1 + S.con/100*1.2; }
+function conCSS(){ const k=contrastK(); return Math.abs(k-1)<1e-3 ? '' : `contrast(${k.toFixed(3)})`; }
+function gainCSS(){ const g=gain(); return join(Math.abs(g-1)<1e-3 ? '' : `brightness(${g.toFixed(3)})`, conCSS()); }
 function tintCSS(){ return S.tint==='mono' ? 'grayscale(1)' : S.tint==='async' ? 'grayscale(1) sepia(.32) hue-rotate(215deg) saturate(.75) brightness(1.03)' : ''; }
 function join(...f){ return f.filter(Boolean).join(' '); }
 function applyFilters(){
   video.style.filter = join(gainCSS(), tintCSS());
   if(result){ out.style.filter=''; bandc.style.filter=''; return; }
-  out.style.filter = run ? join(run.mode!=='accum' ? gainCSS() : '', tintCSS()) : '';
+  out.style.filter = run ? join(run.mode!=='accum' ? gainCSS() : conCSS(), tintCSS()) : '';
   bandc.style.filter = run ? out.style.filter : join(gainCSS(), tintCSS());
 }
 function grade(tint){
@@ -250,9 +281,12 @@ function grade(tint){
   }
   octx.putImageData(im,0,0);
 }
-function applyGain(g){
+function applyTone(g,k){
+  if(Math.abs(g-1)<1e-3 && Math.abs(k-1)<1e-3) return;
   const im=octx.getImageData(0,0,out.width,out.height), d=im.data;
-  for(let i=0;i<d.length;i+=4){ d[i]*=g; d[i+1]*=g; d[i+2]*=g; }
+  for(let i=0;i<d.length;i+=4){
+    d[i]=(d[i]*g-128)*k+128; d[i+1]=(d[i+1]*g-128)*k+128; d[i+2]=(d[i+2]*g-128)*k+128;
+  }
   octx.putImageData(im,0,0);
 }
 
@@ -308,7 +342,8 @@ async function startCamera(){
     msg('La caméra demande une page sécurisée (https).<br>Ouvre Between depuis son adresse GitHub Pages.'); return;
   }
   stopCamera();
-  const base={width:{ideal:2560},height:{ideal:1440},frameRate:{ideal:30}};
+  // 60 images/s plutôt que la définition maximale : chaque image de plus est une ligne de temps en plus.
+  const base={width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:60}};
   const tries=[];
   if(S.deviceId) tries.push(Object.assign({},base,{deviceId:{exact:S.deviceId}}));
   tries.push(Object.assign({},base,{facingMode:{ideal:'environment'}}));
@@ -348,6 +383,8 @@ function readCaps(){
   } else $('#rZoom').classList.add('hidden');
   hwEv = !!(caps.exposureCompensation && caps.exposureCompensation.max>caps.exposureCompensation.min);
   $('#hEv').textContent = hwEv ? 'Réglée directement sur le capteur.' : 'Ce navigateur ne laisse pas régler le capteur : l’image est éclaircie ou assombrie après coup.';
+  const st = (track && track.getSettings) ? track.getSettings() : {};
+  $('#hLens').textContent = st.width ? `Flux reçu : ${st.width} × ${st.height}${st.frameRate ? ', '+Math.round(st.frameRate)+' images par seconde' : ''}.` : '';
   const okShut = !!(caps.exposureTime && caps.exposureMode && caps.exposureMode.includes('manual'));
   $('#rShut').classList.toggle('hidden', !okShut);
   $('#shut').value=S.shut;
@@ -443,12 +480,12 @@ async function begin(){
   const {W,H}=outDims(accum);
   const horiz=S.dir==='lr'||S.dir==='rl', rev=S.dir==='rl'||S.dir==='bt';
   out.width=W; out.height=H; octx.clearRect(0,0,W,H);
-  const R={mode:S.mode,W,H,horiz,rev,N:horiz?W:H,k:0,dur:S.dur*1000,file:source==='file',g:gain(),blend:S.blend,tint:S.tint,stamp:stamp()};
+  const R={mode:S.mode,W,H,horiz,rev,N:horiz?W:H,k:0,kc:0,dur:S.dur*1000,file:source==='file',g:gain(),con:contrastK(),blend:S.blend,tint:S.tint,curve:S.curve,soft:S.soft,stamp:stamp()};
   if(accum){
     R.sum=new Float32Array(W*H*4); if(R.blend==='min') R.sum.fill(255);
     R.count=0; R.last=0; R.lastShow=0;
     R.w=document.createElement('canvas'); R.w.width=W; R.w.height=H;
-    R.wctx=R.w.getContext('2d',{willReadFrequently:true});
+    R.wctx=ctx2d(R.w,{willReadFrequently:true});
     R.img=octx.createImageData(W,H);
   }
   if(R.file){
@@ -456,6 +493,7 @@ async function begin(){
     if(isFinite(video.duration)) R.dur=video.duration*1000; else R.file=false;
     try{ await video.play(); }catch(e){ toast('Lecture de la vidéo impossible'); idleBand(); return; }
   }
+  if(!accum) setupSweep(R);
   run=R;
   document.body.classList.add('capturing');
   $('#info').innerHTML='<i class="dot"></i>Pose en cours';
@@ -465,7 +503,124 @@ async function begin(){
   if(S.recv) startRecorder();
   lockWake();
   R.t0=performance.now();
+  if(!accum && video.requestVideoFrameCallback){ R.vfc=true; video.requestVideoFrameCallback(onVideoFrame); }
   R.raf=requestAnimationFrame(tick);
+}
+
+/* Each real camera frame, exactly once, with its own timestamp. */
+function onVideoFrame(now, meta){
+  const R=run; if(!R || !R.vfc) return;
+  const t = R.file ? meta.mediaTime : (now-R.t0)/1000;
+  sweepFrame(t);
+  video.requestVideoFrameCallback(onVideoFrame);
+}
+
+/* ---------- the sweep: every line is a weighted blend of the frames around its moment ----------
+   A line's moment is fixed by its position. Each frame is spread over the lines whose moments
+   are near its own, with a smooth bell-shaped weight, and every line is normalised by the sum of
+   the weights it received. With a narrow bell this interpolates between consecutive frames
+   (no more stair steps); a wider bell (Douceur) lets neighbouring moments melt into each other. */
+function setupSweep(R){
+  const T=R.dur/1000;
+  R.L = R.horiz ? R.H : R.W;
+  R.hwUser = R.soft/100 * 0.12 * R.N;
+  const hwFrameMax = 0.15/T * R.N * 2 + 2;
+  R.ring = Math.min(R.N, Math.ceil(2*Math.hypot(R.hwUser, hwFrameMax)) + 16);
+  R.sum = new Float32Array(R.ring*R.L*3);
+  R.wt = new Float32Array(R.ring*R.L);
+  R.org = !!S.org;
+  R.owner = new Int32Array(R.ring).fill(-1);
+  R.hi = -1; R.lastT = null; R.prevKc = null; R.dt = 1/30;
+  R.strip = document.createElement('canvas');
+  const sl = R.mode==='scan' ? R.ring : 1;
+  if(R.horiz){ R.strip.width=sl; R.strip.height=R.L; } else { R.strip.width=R.L; R.strip.height=sl; }
+  R.sctx = ctx2d(R.strip, {willReadFrequently:true});
+}
+
+function sweepFrame(t){
+  const R=run; if(!R || R.mode==='accum') return;
+  const vw=video.videoWidth, vh=video.videoHeight; if(!vw||!vh) return;
+  const T=R.dur/1000;
+  if(R.lastT!=null){
+    const d=t-R.lastT;
+    if(d<=0.0005) return;
+    if(d<0.25) R.dt = R.dt*0.8 + d*0.2;
+  }
+  R.lastT=t;
+  const f=Math.max(0,Math.min(1,t/T));
+  const [g,gp]=CURVEF[R.curve](f);
+  const N=R.N, L=R.L, kc=g*N;
+  const prevKc = R.prevKc==null ? kc : R.prevKc;
+  R.kc=kc; R.prevKc=kc;
+  // reach at least back to the previous frame so no line is ever skipped, even when frames drop
+  const hwF=Math.max(0.75, R.dt/T*N*gp, Math.abs(kc-prevKc)+0.75);
+  const hw=Math.hypot(hwF, R.hwUser);
+  let k0=Math.max(0, Math.ceil(kc-hw-0.5)), k1=Math.min(N-1, Math.floor(kc+hw-0.5));
+  if(k1<k0) return;
+  if(k1-k0+1 > R.ring) k0 = k1-R.ring+1;
+  const n=k1-k0+1;
+  const crop=cropRect(vw,vh,R.W/R.H);
+  const sx_=R.sctx;
+  let sw, sh;
+  if(R.mode==='scan'){
+    const p0 = R.rev ? N-1-k1 : k0;
+    if(R.horiz){
+      const sc=crop.w/R.W; let x=crop.x+p0*sc, w=Math.min(n*sc, vw-x);
+      sx_.drawImage(video, x, crop.y, w, crop.h, 0,0, n, L); sw=n; sh=L;
+    } else {
+      const sc=crop.h/R.H; let y=crop.y+p0*sc, h=Math.min(n*sc, vh-y);
+      sx_.drawImage(video, crop.x, y, crop.w, h, 0,0, L, n); sw=L; sh=n;
+    }
+  } else {
+    if(R.horiz){ const w=Math.max(1,crop.w/R.W); sx_.drawImage(video, crop.x+(crop.w-w)/2, crop.y, w, crop.h, 0,0, 1, L); sw=1; sh=L; }
+    else { const h=Math.max(1,crop.h/R.H); sx_.drawImage(video, crop.x, crop.y+(crop.h-h)/2, crop.w, h, 0,0, L, 1); sw=L; sh=1; }
+  }
+  const d=sx_.getImageData(0,0,sw,sh).data;
+  const s=R.sum, W8=R.wt, img = R.horiz ? octx.createImageData(n,L) : octx.createImageData(L,n), o=img.data;
+  const org=R.org, SIG2=2*26*26;
+  const sStep = R.horiz ? sw*4 : 4, oStep = R.horiz ? n*4 : 4;
+  for(let k=k0;k<=k1;k++){
+    const slot=k%R.ring, b3=slot*L*3, bw=slot*L;
+    if(R.owner[slot]!==k){ R.owner[slot]=k; W8.fill(0, bw, bw+L); s.fill(0, b3, b3+L*3); }
+    const q=(k+0.5-kc)/hw, w = q>-1 && q<1 ? (1-q*q)*(1-q*q) : 0;
+    const j = R.rev ? k1-k : k-k0;          // line inside the written block
+    const js = R.mode==='scan' ? j : 0;     // line inside the source strip
+    // Organique: the line already built just before this one is the "sibling" each pixel is compared with.
+    let ref=-1;
+    if(org && k>0){ const ps=(k-1)%R.ring; if(R.owner[ps]===k-1) ref=ps; }
+    if(w>0){
+      const i0 = R.horiz ? js*4 : js*sw*4;
+      for(let p=0,i=i0;p<L;p++,i+=sStep){
+        const r=d[i], gg=d[i+1], bb=d[i+2];
+        let ww=w;
+        if(org){
+          // strong pixels: local contrast along the line keeps edges and textures from washing out
+          const im = p>0 ? i-sStep : i, ip = p<L-1 ? i+sStep : i;
+          const e=Math.abs((.3*d[ip]+.59*d[ip+1]+.11*d[ip+2])-(.3*d[im]+.59*d[im+1]+.11*d[im+2]));
+          ww *= 1 + 2*Math.min(1, e/48);
+          // siblings: frames whose pixel continues the neighbouring line are preferred
+          if(ref>=0){
+            const rw=W8[ref*L+p];
+            if(rw>0){
+              const rq=ref*L*3+p*3, rl=(.3*s[rq]+.59*s[rq+1]+.11*s[rq+2])/rw;
+              const dl=(.3*r+.59*gg+.11*bb)-rl;
+              ww *= 0.06 + Math.exp(-dl*dl/SIG2);
+            }
+          }
+        }
+        const c=b3+p*3; s[c]+=r*ww; s[c+1]+=gg*ww; s[c+2]+=bb*ww; W8[bw+p]+=ww;
+      }
+    }
+    const o0 = R.horiz ? j*4 : j*L*4;
+    for(let p=0,i=o0;p<L;p++,i+=oStep){
+      const tw=W8[bw+p]; if(tw<=0) continue;
+      const inv=1/tw, c=b3+p*3;
+      o[i]=s[c]*inv; o[i+1]=s[c+1]*inv; o[i+2]=s[c+2]*inv; o[i+3]=255;
+    }
+  }
+  const pA = R.rev ? N-1-k1 : k0;
+  if(R.horiz) octx.putImageData(img, pA, 0); else octx.putImageData(img, 0, pA);
+  if(k1>R.hi) R.hi=k1;
 }
 
 function tick(now){
@@ -476,7 +631,7 @@ function tick(now){
   if(vw && vh){
     const crop=cropRect(vw,vh,R.W/R.H);
     if(R.mode==='accum') accumulate(now,crop,false);
-    else { const target=Math.min(R.N, Math.floor(f*R.N)+1); if(target>R.k){ drawLines(R.k,target-1,crop); R.k=target; } }
+    else if(!R.vfc) sweepFrame(R.file ? video.currentTime : (now-R.t0)/1000);
     if(R.rec) drawComposite(crop);
   }
   hud(f, now);
@@ -487,10 +642,10 @@ function hud(f, now){
   const R=run;
   const el = R.file ? video.currentTime : (now-R.t0)/1000;
   setBand(`<span class="t">${fmtClock(el)} <span>/ ${fmtClock(R.dur/1000)}</span></span><small>toucher pour arrêter</small>`);
-  const bp = R.mode==='accum' ? f : (R.k/R.N);
+  const bp = R.mode==='accum' ? f : Math.min(1, R.kc/R.N);
   bandCursor.style.left = ((R.mode!=='accum' && R.rev && R.horiz) ? (1-bp) : bp)*100+'%';
   if(R.mode!=='accum'){
-    const p=(R.k/R.N)*100, pos=R.rev?100-p:p;
+    const p=bp*100, pos=R.rev?100-p:p;
     if(R.horiz) Object.assign(scan.style,{left:pos+'%',top:'0',width:'1px',height:'100%'});
     else Object.assign(scan.style,{top:pos+'%',left:'0',height:'1px',width:'100%'});
   }
@@ -533,9 +688,12 @@ function showAccum(){
 function finish(early){
   const R=run; if(!R) return;
   cancelAnimationFrame(R.raf);
+  R.vfc=false;
   const vw=video.videoWidth, vh=video.videoHeight;
   if(vw && vh){
     const crop=cropRect(vw,vh,R.W/R.H);
+    if(R.mode!=='accum' && !early){ sweepFrame(R.dur/1000); }
+    R.k = R.hi+1;
     if(R.mode==='scan' && R.k<R.N){ drawLines(R.k,R.N-1,crop); R.k=R.N; }
     if(R.mode==='accum') accumulate(performance.now(),crop,true);
   }
@@ -543,10 +701,10 @@ function finish(early){
     const w=R.horiz?R.k:R.W, h=R.horiz?R.H:R.k;
     const sx=R.horiz?(R.rev?R.N-R.k:0):0, sy=R.horiz?0:(R.rev?R.N-R.k:0);
     const c=document.createElement('canvas'); c.width=w; c.height=h;
-    c.getContext('2d').drawImage(out,sx,sy,w,h,0,0,w,h);
+    ctx2d(c).drawImage(out,sx,sy,w,h,0,0,w,h);
     out.width=w; out.height=h; octx.drawImage(c,0,0);
   }
-  if(R.mode!=='accum' && Math.abs(R.g-1)>1e-3) applyGain(R.g);
+  applyTone(R.mode!=='accum' ? R.g : 1, R.con);
   grade(R.tint);
   if(R.file) video.pause();
   run=null;
@@ -587,7 +745,7 @@ function drawComposite(crop){
   if(R.mode!=='accum' || !R.count) x.drawImage(video,crop.x,crop.y,crop.w,crop.h,0,0,c.width,c.height);
   x.drawImage(out,0,0,c.width,c.height);
   if(R.mode!=='accum'){
-    const p=R.k/R.N, pos=R.rev?1-p:p; x.fillStyle='#fff';
+    const p=Math.min(1,R.kc/R.N), pos=R.rev?1-p:p; x.fillStyle='#fff';
     if(R.horiz) x.fillRect(Math.round(pos*c.width)-1,0,2,c.height); else x.fillRect(0,Math.round(pos*c.height)-1,c.width,2);
   }
 }
@@ -613,7 +771,7 @@ function photoBlob(){
   return new Promise(r=>{
     if(res.blob){ r(res.blob); return; }
     const c=document.createElement('canvas'); c.width=out.width; c.height=out.height;
-    const x=c.getContext('2d'); x.fillStyle='#000'; x.fillRect(0,0,c.width,c.height); x.drawImage(out,0,0);
+    const x=ctx2d(c); x.fillStyle='#000'; x.fillRect(0,0,c.width,c.height); x.drawImage(out,0,0);
     c.toBlob(b=>{ res.blob=b; r(b); },'image/jpeg',0.95);
   });
 }
@@ -656,20 +814,29 @@ function opts(id, list, key){
 }
 opts('ratio',RATIOS,'ratio');
 opts('dir',DIRS,'dir');
+opts('dirpick',DIRS,'dir');
+[...$('#dirpick').children].forEach((b,i)=>b.setAttribute('aria-label',['De gauche à droite','De droite à gauche','De haut en bas','De bas en haut'][i]));
 opts('res',RES,'res');
 opts('blend',BLENDS,'blend');
 opts('tint',TINTS,'tint');
 opts('timer',TIMERS,'timer');
 [...$('#modes').children].forEach(b=>b.onclick=()=>{ if(run||counting) return; S.mode=b.dataset.v; save(); refresh(); });
 
-$('#dur').oninput=e=>{ S.dur=DUR[Number(e.target.value)]; save(); refresh(); };
+function niceDur(d){ return d<10 ? Math.round(d*10)/10 : d<60 ? Math.round(d) : Math.round(d/5)*5; }
+function sliderToDur(v){ const x=v/1000; return niceDur(S.mode==='accum' ? DMIN*Math.pow(DMAX/DMIN,x) : DMAX*Math.pow(DMIN/DMAX,x)); }
+function durToSlider(d){ const x=Math.log(d/DMIN)/Math.log(DMAX/DMIN); return Math.round((S.mode==='accum' ? x : 1-x)*1000); }
+$('#dur').oninput=e=>{ S.dur=sliderToDur(Number(e.target.value)); save(); refresh(false); };
+opts('curve',CURVES,'curve');
+$('#soft').oninput=e=>{ S.soft=Number(e.target.value); save(); refresh(false); };
+$('#con').oninput=e=>{ S.con=Number(e.target.value); save(); applyFilters(); refresh(false); };
+$('#org').checked=!!S.org;
+$('#org').onchange=e=>{ S.org=e.target.checked; save(); refresh(); };
 $('#recv').checked=!!S.recv;
 $('#recv').onchange=e=>{ S.recv=e.target.checked; save(); };
 $('#bSettings').onclick=()=>{ if(run||counting) return; $('#sheet').classList.add('on'); };
 $('#sheet .scrim').onclick=()=>$('#sheet').classList.remove('on');
 $('#bClose').onclick=()=>$('#sheet').classList.remove('on');
 
-function nearestDur(){ let bi=0; DUR.forEach((d,i)=>{ if(Math.abs(d-S.dur)<Math.abs(DUR[bi]-S.dur)) bi=i; }); return bi; }
 function refreshInfo(){
   if(run) return;
   $('#info').textContent = source==='file' ? 'Vidéo importée' : (track ? (track.label||'Caméra') : '');
@@ -679,21 +846,31 @@ function summaryText(){
   const what = S.mode==='scan' ? `Balayage ${DIRTXT[S.dir]}`
     : S.mode==='slit' ? `Fente centrale, le temps avance ${DIRTXT[S.dir]}`
     : `Pose longue, ${BLENDS.find(b=>b[0]===S.blend)[1].toLowerCase()}`;
-  return `${what}, ${S.ratio}`;
+  return `${what}, ${S.ratio}${S.mode!=='accum' && S.org ? ', organique' : ''}`;
 }
-function refresh(){
+function refresh(syncSliders){
   marks.forEach(m=>m());
   [...$('#modes').children].forEach(b=>{ const on=b.dataset.v===S.mode; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); });
   const accum=S.mode==='accum', {W,H}=outDims(accum);
   const isFile = source==='file' && isFinite(video.duration);
-  $('#dur').value=nearestDur(); $('#dur').disabled=isFile;
-  $('#vDur').textContent = isFile ? fmtDur(video.duration)+', vidéo' : fmtDur(S.dur);
+  if(syncSliders!==false){ $('#dur').value=durToSlider(S.dur); $('#soft').value=S.soft; $('#con').value=S.con; }
+  $('#dur').disabled=isFile;
   const T = captureLength();
   const N = (S.dir==='lr'||S.dir==='rl') ? W : H;
-  $('#hDur').textContent = isFile ? 'Le balayage suit la longueur de la vidéo importée.'
+  const lps = N/T;
+  $('#kDur').innerHTML = accum ? 'Durée<span lang="ja">時間</span>' : 'Vitesse<span lang="ja">速度</span>';
+  $('#vDur').textContent = accum ? fmtDur(T) : `${lps<10 ? lps.toFixed(1) : Math.round(lps)} lignes/s`;
+  $('#hDur').textContent = isFile ? `Le balayage suit la longueur de la vidéo importée (${fmtDur(T)}).`
     : accum ? `Environ ${Math.round(T*15)} images superposées.`
-    : `${(N/T).toFixed(N/T<10?1:0)} lignes de pixels par seconde.`;
+    : `Un passage complet dure ${fmtDur(T)}. Vers la droite, la ligne défile plus vite.`;
+  $('#vSoft').textContent = S.soft+' %';
+  $('#vCon').textContent = (S.con>0?'+':'')+S.con;
+  $('#hCurve').textContent = CURVE_HINT[S.curve];
   $('#rDir').classList.toggle('hidden', accum);
+  $('#dirpick').classList.toggle('off', accum);
+  $('#rCurve').classList.toggle('hidden', accum);
+  $('#rSoft').classList.toggle('hidden', accum);
+  $('#rOrg').classList.toggle('hidden', accum);
   $('#rBlend').classList.toggle('hidden', !accum);
   $('#vRatio').textContent=S.ratio;
   $('#vDir').textContent=DIRS.find(d=>d[0]===S.dir)[1];
